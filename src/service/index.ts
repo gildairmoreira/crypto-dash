@@ -12,30 +12,38 @@ const axios = Axios.create({
 })
 
 // fetchMarketCurrencies
-export async function fetchMarketCurrencies(): Promise<IFormattedMarketCoin[]> {
-  const { data } = await axios.get('/markets', {
-    params: {
-      vs_currency: 'usd',
-      order: 'market_cap_desc',
-      per_page: 20,
-      page: 1,
-      sparkline: true,
-      price_change_percentage: '7d',
-      locale: 'en',
-    },
-  })
+export async function fetchMarketCurrencies(currency: string = 'usd'): Promise<IFormattedMarketCoin[]> {
+  try {
+    const { data } = await axios.get('/markets', {
+      params: {
+        vs_currency: currency,
+        order: 'market_cap_desc',
+        per_page: 23,
+        page: 1,
+        sparkline: true,
+        price_change_percentage: '7d',
+        locale: 'pt',
+        ids: 'bitcoin,ethereum,binancecoin,cardano,solana,polkadot,dogecoin,avalanche-2,polygon,chainlink,litecoin,bitcoin-cash,algorand,stellar,vechain,filecoin,tron,ethereum-classic,monero,pepe,maga,melania,trump'
+      },
+    })
 
-  return formatData(data)
+    console.log('API Response for PEPE:', data.find((coin: any) => coin.id === 'pepe'))
+    return formatData(data)
+  } catch (error) {
+    console.error('Error fetching market currencies:', error)
+    throw error
+  }
 }
 
 // fetchMarketChart
 export async function fetchMarketChart(
   id: string,
   days: number,
+  currency: string = 'usd',
 ): Promise<IMarketChart> {
   const { data } = await axios.get(`/${id}/market_chart`, {
     params: {
-      vs_currency: 'usd',
+      vs_currency: currency,
       days,
       interval: 'daily',
     },

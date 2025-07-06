@@ -1,11 +1,12 @@
 import React from 'react'
-import ReactApexChart from 'react-apexcharts'
+import Chart from 'react-apexcharts'
 import { ApexOptions } from 'apexcharts'
 
 // Props do componente que recebe uma série de dados e uma cor opcional
 type Props = {
-  series: number[][]
-  color?: string // Cor opcional para personalizar o gráfico
+  readonly series: number[][]
+  readonly color?: string // Cor opcional para personalizar o gráfico
+  readonly theme?: 'dark' | 'light' // Tema para ajustar o background
 }
 
 // Configurações do gráfico usando ApexCharts
@@ -77,17 +78,8 @@ const options: ApexOptions = {
   },
   // Configuração do preenchimento abaixo da linha
   fill: {
-    type: 'gradient',
-    gradient: {
-      shade: 'dark',
-      type: 'vertical',
-      shadeIntensity: 0.5,
-      gradientToColors: undefined,
-      inverseColors: true,
-      opacityFrom: 1, // Opacidade inicial do gradiente
-      opacityTo: 0.8, // Opacidade final do gradiente
-      stops: [0, 90, 100]
-    }
+    type: 'solid',
+    opacity: 0.1 // Opacidade baixa para um preenchimento sutil
   },
   // Configuração dos pontos no gráfico
   markers: {
@@ -109,12 +101,18 @@ const options: ApexOptions = {
 }
 
 // Componente que renderiza o gráfico de card (versão menor do gráfico)
-function CardChart({ series, color }: Props) {
+function CardChart({ series, color, theme = 'dark' }: Props) {
+  const isDark = theme === 'dark'
+  
   return (
-    <ReactApexChart
+    <Chart
       height={100} // Altura reduzida para caber no card
       options={{
         ...options,
+        chart: {
+          ...options.chart,
+          background: 'transparent',
+        },
         // Permite sobrescrever a cor da linha se fornecida via props
         stroke: {
           ...options.stroke,
@@ -124,6 +122,32 @@ function CardChart({ series, color }: Props) {
         markers: {
           ...options.markers,
           colors: color ? [color] : options.markers?.colors,
+        },
+        // Ajusta o tooltip conforme o tema
+        tooltip: {
+          ...options.tooltip,
+          theme: isDark ? 'dark' : 'light',
+          style: {
+            fontSize: '12px',
+            fontFamily: 'inherit',
+          },
+          custom: function({ series, seriesIndex, dataPointIndex, w }) {
+            const value = series[seriesIndex][dataPointIndex]
+            return `
+              <div class="${
+                isDark 
+                  ? 'bg-gray-900 border border-gray-700 text-white' 
+                  : 'bg-white border border-gray-200 text-gray-900'
+              } px-3 py-2 rounded-lg shadow-lg">
+                <span class="font-medium">$${value.toLocaleString()}</span>
+              </div>
+            `
+          }
+        },
+        // Ajusta o preenchimento conforme o tema
+        fill: {
+          ...options.fill,
+          opacity: isDark ? 0.1 : 0.05
         },
       }}
       series={[{

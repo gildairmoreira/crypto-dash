@@ -2,7 +2,7 @@ import React from 'react'
 import { IoCaretDownOutline, IoCaretUpOutline } from 'react-icons/io5'
 
 type Props = {
-  changePrice: number
+  readonly changePrice: number
 }
 
 function PriceChange24h({ changePrice }: Props) {

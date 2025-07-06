@@ -1,12 +1,13 @@
 import React from 'react'
-import ReactApexChart from 'react-apexcharts'
+import Chart from 'react-apexcharts'
 import { ApexOptions } from 'apexcharts'
 import moment from 'moment'
 import { customChartTooltip } from '../utils/helpers'
+import { useGlobalStore } from '../store/useGlobalStore'
 
 // Props do componente que recebe uma série de dados no formato number[][]
 type Props = {
-  series: number[][]
+  readonly series: number[][]
 }
 
 // Configurações do gráfico usando ApexCharts
@@ -123,7 +124,6 @@ const options: ApexOptions = {
     fillOpacity: 1,
     discrete: [],
     shape: 'circle',
-    radius: 2,
     showNullDataPoints: true,
     hover: {
       size: 8, // Tamanho do ponto ao passar o mouse
@@ -134,10 +134,38 @@ const options: ApexOptions = {
 
 // Componente que renderiza o gráfico de mercado
 function MarketChart({ series }: Props) {
+  const { theme } = useGlobalStore()
+  const isDark = theme === 'dark'
+  
+  // Configurações dinâmicas baseadas no tema
+  const dynamicOptions: ApexOptions = {
+    ...options,
+    grid: {
+      ...options.grid,
+      borderColor: isDark ? '#1e293b' : '#e2e8f0',
+    },
+    yaxis: {
+      ...options.yaxis,
+      labels: {
+        ...options.yaxis?.labels,
+        style: { colors: isDark ? '#94a3b8' : '#64748b' },
+      },
+    },
+    xaxis: {
+      ...options.xaxis,
+      labels: {
+        ...options.xaxis?.labels,
+        style: { colors: isDark ? '#94a3b8' : '#64748b' },
+      },
+      axisTicks: { color: isDark ? '#1e293b' : '#e2e8f0' },
+      axisBorder: { color: isDark ? '#1e293b' : '#e2e8f0' },
+    },
+  }
+  
   return (
-    <ReactApexChart
+    <Chart
       height={450} // Altura do gráfico
-      options={options} // Configurações definidas acima
+      options={dynamicOptions} // Configurações dinâmicas baseadas no tema
       series={[{
         name: 'Price',
         data: series, // Dados do preço
