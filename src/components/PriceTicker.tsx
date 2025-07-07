@@ -4,6 +4,7 @@ import { useGlobalStore } from '../store/useGlobalStore'
 import { CURRENCY_SYMBOLS } from '../constants/currencies'
 import { useExchangeRates } from '../hooks/useExchangeRates'
 import { ExchangeRateToast } from './ExchangeRateToast'
+import useMarketCoins from '../queries/useMarketCoins'
 
 interface PriceTickerItemProps {
   symbol: string
@@ -78,22 +79,36 @@ interface PriceTickerProps {
 export function PriceTicker({ className = '' }: PriceTickerProps) {
   const { theme, currency } = useGlobalStore()
   const { exchangeRates, isLoading: ratesLoading, error: ratesError, lastUpdate } = useExchangeRates()
+  const { data: marketCoins, isLoading: coinsLoading, isError: coinsError } = useMarketCoins()
   const isDark = theme === 'dark'
   const currencySymbol = CURRENCY_SYMBOLS[currency]
 
-  // Mock data - in a real app, this would come from an API
-  const tickerData = [
-    { symbol: 'BTC', price: `${currencySymbol}43,250.00`, change: '+2.5%', positive: true },
-    { symbol: 'ETH', price: `${currencySymbol}2,680.50`, change: '+1.8%', positive: true },
-    { symbol: 'PEPE', price: `${currencySymbol}0.00000125`, change: '+15.2%', positive: true },
-    { symbol: 'ADA', price: `${currencySymbol}0.485`, change: '-0.3%', positive: false },
-    { symbol: 'SOL', price: `${currencySymbol}98.75`, change: '+4.2%', positive: true },
-    { symbol: 'DOT', price: `${currencySymbol}7.25`, change: '+0.9%', positive: true },
-    { symbol: 'LINK', price: `${currencySymbol}14.85`, change: '+3.1%', positive: true },
-    { symbol: 'MATIC', price: `${currencySymbol}0.92`, change: '-1.2%', positive: false },
-    { symbol: 'TRUMP', price: `${currencySymbol}12.45`, change: '+8.7%', positive: true },
-    { symbol: 'MELANIA', price: `${currencySymbol}3.21`, change: '+5.4%', positive: true },
-  ]
+  // Usar dados reais da API em vez de mock
+  const tickerData = marketCoins ? marketCoins.slice(0, 15).map(coin => {
+    const price = coin.current_price
+    const change = coin.price_change_percentage_24h
+    const positive = change >= 0
+    
+    // Formatar preço baseado no valor
+    const formatPrice = (price: number) => {
+      if (price < 0.01) {
+        return `${currencySymbol}${price.toFixed(8)}`
+      } else if (price < 1) {
+        return `${currencySymbol}${price.toFixed(4)}`
+      } else if (price < 100) {
+        return `${currencySymbol}${price.toFixed(2)}`
+      } else {
+        return `${currencySymbol}${price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      }
+    }
+    
+    return {
+      symbol: coin.symbol.toUpperCase(),
+      price: formatPrice(price),
+      change: `${positive ? '+' : ''}${change.toFixed(1)}%`,
+      positive
+    }
+  }) : []
 
   // Usar cotações dinâmicas da API
   const exchangeRateItems = exchangeRates.map(rate => ({
@@ -108,27 +123,42 @@ export function PriceTicker({ className = '' }: PriceTickerProps) {
         ? 'bg-gradient-to-r from-gray-900/50 to-gray-800/50 border-gray-700/50' 
         : 'bg-gradient-to-r from-white/80 to-gray-50/80 border-gray-200/50'
     } border backdrop-blur-sm ${className}`}>
-      <motion.div
-        className="flex gap-8 items-center py-3 text-xs whitespace-nowrap"
-        animate={{ x: [-100, -2000] }}
-        transition={{ 
-          duration: 40, 
-          repeat: Infinity, 
-          ease: "linear",
-          repeatType: "loop"
-        }}
-      >
-        {/* Duplicate the data to create seamless loop */}
-        {[...tickerData, ...tickerData, ...tickerData].map((item, index) => (
-          <PriceTickerItem
-            key={`${item.symbol}-${index}`}
-            symbol={item.symbol}
-            price={item.price}
-            change={item.change}
-            positive={item.positive}
-          />
-        ))}
-      </motion.div>
+      {coinsLoading ? (
+        <div className={`flex justify-center items-center py-3 text-xs ${
+          isDark ? 'text-gray-400' : 'text-gray-500'
+        }`}>
+          <div className="w-3 h-3 rounded-full border border-current animate-spin border-t-transparent mr-2"></div>
+          <span>Carregando preços das criptomoedas...</span>
+        </div>
+      ) : coinsError || tickerData.length === 0 ? (
+        <div className={`flex justify-center items-center py-3 text-xs ${
+          isDark ? 'text-red-400' : 'text-red-500'
+        }`}>
+          <span>⚠️ Erro ao carregar preços das criptomoedas</span>
+        </div>
+      ) : (
+        <motion.div
+          className="flex gap-8 items-center py-3 text-xs whitespace-nowrap"
+          animate={{ x: [-100, -2000] }}
+          transition={{ 
+            duration: 40, 
+            repeat: Infinity, 
+            ease: "linear",
+            repeatType: "loop"
+          }}
+        >
+          {/* Duplicate the data to create seamless loop */}
+          {[...tickerData, ...tickerData, ...tickerData].map((item, index) => (
+            <PriceTickerItem
+              key={`${item.symbol}-${index}`}
+              symbol={item.symbol}
+              price={item.price}
+              change={item.change}
+              positive={item.positive}
+            />
+          ))}
+        </motion.div>
+      )}
       
       {/* Exchange rates display for all currencies */}
       <div className={`flex justify-center items-center py-2 border-t ${
