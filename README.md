@@ -4,8 +4,7 @@
 
 ## 📸 Preview
 
-<!-- Adicione aqui o screenshot da homepage do projeto -->
-![Homepage Preview](./docs/homepage-preview.png)
+![Crypto Dashboard Preview](./print1.png)
 
 ## 🎯 Sobre o Projeto
 
