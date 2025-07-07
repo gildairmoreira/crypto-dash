@@ -1,5 +1,5 @@
 import React from 'react'
-import { IoLogoBitcoin, IoTrendingUp, IoGlobe } from 'react-icons/io5'
+import { IoLogoBitcoin, IoTrendingUp } from 'react-icons/io5'
 import { Select, SelectItem } from '@heroui/select'
 import { motion } from 'framer-motion'
 import { useGlobalStore } from '../store/useGlobalStore'
@@ -13,6 +13,7 @@ function Header() {
 
   return (
     <motion.header 
+      data-testid="header"
       className={`w-full backdrop-blur-md border-b rounded-3xl overflow-hidden ${
         isDark 
           ? 'bg-main-darker/80 border-primary/20' 
@@ -71,6 +72,7 @@ function Header() {
           
           {/* Currency Selector */}
           <Select
+            data-testid="currency-selector"
             placeholder="Selecione a moeda"
             selectedKeys={new Set([currency])}
             onSelectionChange={(keys) => {
@@ -107,8 +109,8 @@ function Header() {
           >
             {CURRENCIES.map((curr) => (
               <SelectItem 
-                key={curr.key} 
-                value={curr.key} 
+                key={curr.key}
+                data-testid={`currency-option-${curr.key}`}
                 className={isDark 
                   ? "text-white hover:bg-primary/20" 
                   : "text-gray-900 hover:bg-blue-50"

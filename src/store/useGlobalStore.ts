@@ -15,6 +15,13 @@ type State = {
   setThemeTransitioning: (transitioning: boolean) => void
 }
 
+// Função para detectar o tema  do sistema operacional
+const getSystemTheme = (): Theme => {
+  if (typeof window === 'undefined') return 'dark'
+  
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
+
 // Função para obter valores iniciais do localStorage
 const getInitialValues = () => {
   if (typeof window === 'undefined') {
@@ -26,12 +33,15 @@ const getInitialValues = () => {
   }
   
   const savedCurrency = localStorage.getItem('crypto-dash-currency') as Currency || 'usd'
-  const savedTheme = localStorage.getItem('crypto-dash-theme') as Theme || 'dark'
+  const savedTheme = localStorage.getItem('crypto-dash-theme') as Theme
   const savedDetailsId = localStorage.getItem('crypto-dash-detailsId') || 'bitcoin'
+  
+  // Se não há tema salvo, usar o tema do sistema
+  const theme = savedTheme || getSystemTheme()
   
   return {
     currency: savedCurrency,
-    theme: savedTheme,
+    theme: theme,
     detailsId: savedDetailsId
   }
 }

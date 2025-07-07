@@ -48,9 +48,9 @@ function DetailsView({}: Props) {
   if (isDetailsLoading || isChartDataLoading) return <Loading />
 
   return (
-    <>
+    <div data-testid="details-view">
       {/* filters */}
-      <div className="flex gap-5 justify-end">
+      <div data-testid="chart-filters" className="flex gap-5 justify-end">
         <ButtonGroup variant="bordered" color="primary" className="my-auto">
           {daysFilters.map((filter) => (
             <Button 
@@ -77,12 +77,12 @@ function DetailsView({}: Props) {
         }`}>{details?.name}</div>
       </div>
       {/* chart */}
-      <div className="mx-auto w-full min-h-96">
+      <div data-testid="market-chart-container" className="mx-auto w-full min-h-96">
         {chartData && <MarketChart series={chartData.prices} />}
       </div>
 
       {/* details */}
-      <div className="flex flex-col flex-wrap flex-grow gap-2 mx-auto md:flex-row">
+      <div data-testid="price-details" className="flex flex-col flex-wrap flex-grow gap-2 mx-auto md:flex-row">
         <div className={`p-3 space-y-4 w-full bg-opacity-90 rounded-2xl md:w-52 h-fit ${
           isDark 
             ? 'text-indigo-300 bg-main-darker' 
@@ -122,7 +122,7 @@ function DetailsView({}: Props) {
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

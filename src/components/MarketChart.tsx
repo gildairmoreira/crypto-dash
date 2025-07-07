@@ -26,7 +26,6 @@ const options: ApexOptions = {
     // Configurações de animação do gráfico
     animations: {
       enabled: true,
-      easing: 'easeinout',
       speed: 800,
       animateGradually: {
         enabled: true,
@@ -108,8 +107,8 @@ const options: ApexOptions = {
       shadeIntensity: 0.5,
       gradientToColors: undefined,
       inverseColors: true,
-      opacityFrom: 1, // Opacidade inicial do gradiente
-      opacityTo: 0.9, // Opacidade final do gradiente
+      opacityFrom: 0.7, // Opacidade inicial do gradiente
+      opacityTo: 1, // Opacidade final do gradiente
       stops: [0, 90, 100]
     }
   },
@@ -137,6 +136,31 @@ function MarketChart({ series }: Props) {
   const { theme } = useGlobalStore()
   const isDark = theme === 'dark'
   
+  // Validar e filtrar dados inválidos
+  const validSeries = series.filter(point => 
+    Array.isArray(point) && 
+    point.length === 2 && 
+    typeof point[0] === 'number' && 
+    typeof point[1] === 'number' && 
+    !isNaN(point[0]) && 
+    !isNaN(point[1]) && 
+    isFinite(point[0]) && 
+    isFinite(point[1])
+  )
+  
+  // Se não há dados válidos, mostrar mensagem
+  if (validSeries.length === 0) {
+    return (
+      <div className="h-[450px] flex items-center justify-center">
+        <span className={`text-lg ${
+          isDark ? 'text-gray-400' : 'text-gray-500'
+        }`}>
+          Dados do gráfico indisponíveis
+        </span>
+      </div>
+    )
+  }
+  
   // Configurações dinâmicas baseadas no tema
   const dynamicOptions: ApexOptions = {
     ...options,
@@ -147,7 +171,7 @@ function MarketChart({ series }: Props) {
     yaxis: {
       ...options.yaxis,
       labels: {
-        ...options.yaxis?.labels,
+        ...(Array.isArray(options.yaxis) ? {} : options.yaxis?.labels),
         style: { colors: isDark ? '#94a3b8' : '#64748b' },
       },
     },
@@ -164,11 +188,12 @@ function MarketChart({ series }: Props) {
   
   return (
     <Chart
+      type="line" // Tipo do gráfico obrigatório
       height={450} // Altura do gráfico
       options={dynamicOptions} // Configurações dinâmicas baseadas no tema
       series={[{
         name: 'Price',
-        data: series, // Dados do preço
+        data: validSeries, // Dados validados do preço
       }]}
     />
   )

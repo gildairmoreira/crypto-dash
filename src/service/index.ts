@@ -59,10 +59,20 @@ export async function fetchCoinDetails(id: string): Promise<ICoinDetails> {
 
 function formatSparkline(sparkline: number[]) {
   const sevenDaysAgo = moment().subtract(7, 'd').unix()
-  let formattedSparkline = sparkline.slice(-48).map((item, index) => {
+  
+  // Filtrar valores inválidos (null, undefined, NaN) antes de processar
+  const validSparkline = sparkline.filter(item => 
+    item !== null && 
+    item !== undefined && 
+    !isNaN(item) && 
+    isFinite(item)
+  )
+  
+  let formattedSparkline = validSparkline.slice(-48).map((item, index) => {
+    const timestamp = sevenDaysAgo + (index + 1) * 3600
     return {
-      x: sevenDaysAgo + (index + 1) * 3600,
-      y: item,
+      x: timestamp,
+      y: Number(item), // Garantir que é um número válido
     }
   })
 

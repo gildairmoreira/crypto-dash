@@ -37,7 +37,7 @@ function MarketCurrencyCard({
   }
 
   return (
-    <div className={`w-full p-6 rounded-2xl flex flex-col h-80 transition-all duration-300 hover:scale-[1.02] cursor-pointer backdrop-blur-md border ${
+    <div data-testid={`crypto-card-${id}`} className={`w-full p-6 rounded-2xl flex flex-col h-80 transition-all duration-300 hover:scale-[1.02] cursor-pointer backdrop-blur-md border ${
       isDark 
         ? 'bg-main-darker/80 border-primary/20 text-indigo-300 hover:shadow-lg hover:shadow-primary/20 hover:border-primary/40' 
         : 'bg-white/70 border-blue-200/50 text-gray-700 hover:shadow-xl hover:shadow-blue-500/10 hover:border-blue-300/60'
@@ -85,6 +85,7 @@ function MarketCurrencyCard({
           </div>
         </div>
         <Button
+          data-testid={`details-button-${id}`}
           onPress={showDetails}
           variant="bordered"
           color={isDark ? "primary" : "default"}

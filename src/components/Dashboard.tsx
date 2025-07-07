@@ -9,7 +9,7 @@ function Dashboard() {
   const isDark = theme === 'dark'
   
   return (
-    <div className="w-full">
+    <div data-testid="dashboard" className="w-full">
       {/* Price Ticker - Full Width */}
       <PriceTicker className="mb-5" />
       
@@ -22,7 +22,7 @@ function Dashboard() {
         }`}>
           Visualização Detalhada
         </div>
-        <div className={`rounded-3xl p-5 transition-all duration-300 hover:shadow-lg ${
+        <div data-testid="details-view-container" className={`rounded-3xl p-5 transition-all duration-300 hover:shadow-lg ${
           isDark 
             ? 'bg-opacity-90 bg-main-darker hover:shadow-primary/20' 
             : 'bg-white bg-opacity-90 border border-blue-100 hover:shadow-blue-200'

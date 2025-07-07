@@ -29,6 +29,7 @@ const options: ApexOptions = {
   },
   // Configuração da linha do gráfico
   stroke: {
+    show: true,
     curve: 'smooth', // Suaviza a linha
     width: 4, // Espessura da linha
     lineCap: 'round', // Estilo das extremidades
@@ -78,8 +79,17 @@ const options: ApexOptions = {
   },
   // Configuração do preenchimento abaixo da linha
   fill: {
-    type: 'solid',
-    opacity: 0.1 // Opacidade baixa para um preenchimento sutil
+    type: 'gradient',
+    gradient: {
+      shade: 'dark',
+      type: 'vertical',
+      shadeIntensity: 0.5,
+      gradientToColors: undefined,
+      inverseColors: true,
+      opacityFrom: 1, // Opacidade inicial do gradiente
+      opacityTo: 0.8, // Opacidade final do gradiente
+      stops: [0, 90, 100]
+    }
   },
   // Configuração dos pontos no gráfico
   markers: {
@@ -103,6 +113,31 @@ const options: ApexOptions = {
 // Componente que renderiza o gráfico de card (versão menor do gráfico)
 function CardChart({ series, color, theme = 'dark' }: Props) {
   const isDark = theme === 'dark'
+  
+  // Validar e filtrar dados inválidos
+  const validSeries = series.filter(point => 
+    Array.isArray(point) && 
+    point.length === 2 && 
+    typeof point[0] === 'number' && 
+    typeof point[1] === 'number' && 
+    !isNaN(point[0]) && 
+    !isNaN(point[1]) && 
+    isFinite(point[0]) && 
+    isFinite(point[1])
+  )
+  
+  // Se não há dados válidos, não renderizar o gráfico
+  if (validSeries.length === 0) {
+    return (
+      <div className="h-[100px] flex items-center justify-center">
+        <span className={`text-sm ${
+          isDark ? 'text-gray-400' : 'text-gray-500'
+        }`}>
+          Dados indisponíveis
+        </span>
+      </div>
+    )
+  }
   
   return (
     <Chart
@@ -152,7 +187,7 @@ function CardChart({ series, color, theme = 'dark' }: Props) {
       }}
       series={[{
         name: 'Price',
-        data: series, // Dados do preço
+        data: validSeries, // Dados validados do preço
       }]}
     />
   )

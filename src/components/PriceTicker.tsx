@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { useGlobalStore } from '../store/useGlobalStore'
 import { CURRENCY_SYMBOLS } from '../constants/currencies'
 import { useExchangeRates } from '../hooks/useExchangeRates'
-import { ExchangeRateTooltip } from './ExchangeRateTooltip'
+import { ExchangeRateToast } from './ExchangeRateToast'
 
 interface PriceTickerItemProps {
   symbol: string
@@ -45,7 +45,7 @@ const PriceTickerItem = ({
   }
   
   return (
-    <div className="flex items-center gap-2 px-4">
+    <div className="flex gap-2 items-center px-4">
       <span className={`font-medium ${
         isDark ? 'text-white' : 'text-gray-900'
       }`}>
@@ -54,7 +54,7 @@ const PriceTickerItem = ({
       <span 
         className={`cursor-pointer transition-all duration-200 ${
           isDark ? 'text-primary/70 hover:text-primary' : 'text-blue-600 hover:text-blue-800'
-        } ${hasSmallPrice ? 'hover:bg-opacity-10 hover:bg-gray-500 rounded px-1' : ''}`}
+        } ${hasSmallPrice ? 'px-1 rounded hover:bg-opacity-10 hover:bg-gray-500' : ''}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={() => hasSmallPrice && setIsExpanded(!isExpanded)}
@@ -103,13 +103,13 @@ export function PriceTicker({ className = '' }: PriceTickerProps) {
   }))
 
   return (
-    <div className={`w-full overflow-hidden ${
+    <div data-testid="price-ticker" className={`w-full overflow-hidden ${
       isDark 
         ? 'bg-gradient-to-r from-gray-900/50 to-gray-800/50 border-gray-700/50' 
         : 'bg-gradient-to-r from-white/80 to-gray-50/80 border-gray-200/50'
     } border backdrop-blur-sm ${className}`}>
       <motion.div
-        className="flex items-center gap-8 py-3 text-xs whitespace-nowrap"
+        className="flex gap-8 items-center py-3 text-xs whitespace-nowrap"
         animate={{ x: [-100, -2000] }}
         transition={{ 
           duration: 40, 
@@ -138,19 +138,19 @@ export function PriceTicker({ className = '' }: PriceTickerProps) {
           <div className={`flex items-center gap-2 text-xs ${
             isDark ? 'text-gray-400' : 'text-gray-500'
           }`}>
-            <div className="animate-spin w-3 h-3 border border-current border-t-transparent rounded-full"></div>
+            <div className="w-3 h-3 rounded-full border border-current animate-spin border-t-transparent"></div>
             <span>Carregando cotações...</span>
-            <ExchangeRateTooltip />
+            <ExchangeRateToast />
           </div>
         ) : ratesError ? (
           <div className={`flex items-center gap-2 text-xs ${
             isDark ? 'text-red-400' : 'text-red-500'
           }`}>
             <span>⚠️ Erro ao carregar cotações</span>
-            <ExchangeRateTooltip />
+            <ExchangeRateToast />
           </div>
         ) : exchangeRateItems.length > 0 ? (
-          <div className="flex items-center gap-6 text-xs">
+          <div className="flex gap-6 items-center text-xs">
             <div className="flex gap-4">
               {exchangeRateItems.map((item, index) => (
                 <div key={index} className={`flex items-center gap-1 ${
@@ -174,7 +174,7 @@ export function PriceTicker({ className = '' }: PriceTickerProps) {
                     : `${Math.floor((new Date().getTime() - lastUpdate.getTime()) / 60000)}min atrás`
                   }
                 </span>
-                <ExchangeRateTooltip />
+                <ExchangeRateToast />
               </div>
             )}
           </div>
@@ -183,7 +183,7 @@ export function PriceTicker({ className = '' }: PriceTickerProps) {
             isDark ? 'text-gray-500' : 'text-gray-400'
           }`}>
             <span>Cotações não disponíveis</span>
-            <ExchangeRateTooltip />
+            <ExchangeRateToast />
           </div>
         )}
       </div>
